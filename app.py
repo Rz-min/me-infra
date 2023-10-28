@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 import os
+from typing import Mapping
+
+import aws_cdk as cdk
 import yaml
 from dotenv import load_dotenv
-import aws_cdk as cdk
 from jinja2 import Template
-from typing import Optional, Mapping
 
 from stacks.models.metadata import MetaData
 from stacks.stage import DeployStage
@@ -34,14 +35,15 @@ for region in metadata.regions:
         deploy_env = cdk.Environment(account=str(account.account_id), region=region)
         print(deploy_env)
 
-        for stage_name in account.stages:
+        for stage in account.stages:
             DeployStage(
                 app,
-                f"Deploy-{stage_name.capitalize()}",
-                stage_name=stage_name,
-                config=metadata,
+                f"Deploy-{stage.name.pascal()}",
+                stage_name=stage.name,
+                stage_config=stage,
                 env=deploy_env,
             )
 
 
+app.synth()
 app.synth()

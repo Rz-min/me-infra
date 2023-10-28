@@ -6,6 +6,21 @@ accounts:
   - alias: {{ ACCOUNT_NAME }}
     account_id: {{ AWS_ACCOUNT_ID }}
     stages:
-      - dev
-      - sandbox
-      - experiment
+      - name: dev
+        description: develop
+        data_path: "stacks/data"
+        stacks:
+          - vpc
+          # - subnet
+
+      - name: sandbox
+        description: sandbox
+        data_path: "stacks/data"
+        stacks:
+          - vpc
+
+      - name: experiment
+        description: experiment-studio
+        data_path: "stacks/data"
+        stacks:
+          - vpc

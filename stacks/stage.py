@@ -1,21 +1,8 @@
-from aws_cdk import (
-    Duration,
-    Stack,
-    Stage,
-    Environment,
-    aws_sqs as sqs,
-)
+from aws_cdk import Environment, Stage
 from constructs import Construct
-from typing import Mapping
 
-
-class SampleSqs(Stack):
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
-        super().__init__(scope, construct_id, **kwargs)
-
-        self.queue = sqs.Queue(
-            self, "SampleQueue", visibility_timeout=Duration.seconds(300)
-        )
+from .models.metadata import StackConfig, StageConfig, StageName
+from .vpc import VpcStack
 
 
 class DeployStage(Stage):
@@ -24,11 +11,21 @@ class DeployStage(Stage):
         scope: Construct,
         construct_id: str,
         *,
-        stage_name: str,
-        config: Mapping[str, str],
+        stage_name: StageName,
+        stage_config: StageConfig,
         env: Environment,
         **kwargs,
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        SampleSqs(self, f"sample-{stage_name}")
+        print("StageName = ", str(stage_name))
+
+        stack_config = StackConfig(**stage_config.merge_stack_parameters())
+
+        if stack_config.vpc is not None:
+            vpc_stack = VpcStack(
+                self,
+                f"VpcStack-{stage_name.pascal()}",
+                config=stack_config.vpc[stage_name],
+                env=env,
+            )
